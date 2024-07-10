@@ -62,7 +62,6 @@ export default function AppMain() {
       return [...data.slice(0, index), item, ...data.slice(index + 1)]
     })
   }
-  let jamor
 
   const leftItemsNum = data.filter((item) => item.status !== 'completed').length
 
