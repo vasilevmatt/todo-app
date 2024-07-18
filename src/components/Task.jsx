@@ -1,21 +1,21 @@
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import PropTypes from 'prop-types'
-import React, { useEffect, useState, useRef } from 'react'
+import TodoContext from '../context/todo-context'
 
-export default function Task(props) {
-  const { label, status, date, onDeleted, toggleStatus, onEdited, timerHandler, timer, isTimerActive, setTimerActive } =
-    props
+export default function Task({ id, label, status, date, timer, isTimerActive }) {
+  const { toggleStatus, deleteItem, editItem, timerHandler, handleTimerActiveChange } = useContext(TodoContext)
 
   const [timerSeconds, setTimerSeconds] = useState(timer)
   const timerInterval = useRef(null)
   const [formattedTime, setFormattedTime] = useState({ minutes: '00', seconds: '00' })
-  const [text, setText] = useState('')
+  const [text, setText] = useState(label)
 
   const toggleDone = () => {
-    toggleStatus('completed')
+    toggleStatus(id, 'completed')
   }
   const toggleEdit = () => {
-    toggleStatus('editing')
+    toggleStatus(id, 'editing')
   }
 
   useEffect(() => {
@@ -42,11 +42,11 @@ export default function Task(props) {
       setTimerSeconds((prev) => {
         if (prev <= 1) {
           clearInterval(timerInterval.current)
-          setTimerActive(false)
-          timerHandler(0)
+          handleTimerActiveChange(id, false)
+          timerHandler(id, 0)
           return 0
         }
-        timerHandler(prev - 1)
+        timerHandler(id, prev - 1)
         return prev - 1
       })
     }, 1000)
@@ -55,13 +55,13 @@ export default function Task(props) {
   const togglePlay = () => {
     if (!timerInterval.current) {
       startTimerInterval()
-      setTimerActive(true)
+      handleTimerActiveChange(id, true)
     }
   }
 
   const toggleStop = () => {
-    timerHandler(timerSeconds)
-    setTimerActive(false)
+    timerHandler(id, timerSeconds)
+    handleTimerActiveChange(id, false)
     clearInterval(timerInterval.current)
     timerInterval.current = null
   }
@@ -72,8 +72,8 @@ export default function Task(props) {
 
   function onSubmit(e) {
     e.preventDefault()
-    onEdited(text)
-    toggleStatus('view')
+    editItem(id, text)
+    toggleStatus(id, 'view')
   }
 
   return (
@@ -92,7 +92,7 @@ export default function Task(props) {
           <span className="description">created {formatDistanceToNow(date, { includeSeconds: true })} ago</span>
         </label>
         <button className="icon icon-edit" onClick={toggleEdit} />
-        <button className="icon icon-destroy" onClick={onDeleted} />
+        <button className="icon icon-destroy" onClick={() => deleteItem(id)} />
       </div>
       {status === 'editing' && (
         <form onSubmit={onSubmit}>
@@ -104,14 +104,12 @@ export default function Task(props) {
 }
 
 Task.propTypes = {
+  id: PropTypes.number.isRequired,
   status: PropTypes.string,
   label: PropTypes.string,
   date: PropTypes.instanceOf(Date),
-  onDeleted: PropTypes.func,
-  onEdited: PropTypes.func,
-  toggleStatus: PropTypes.func,
-  timerHandler: PropTypes.func,
   timer: PropTypes.number,
+  isTimerActive: PropTypes.bool,
 }
 
 Task.defaultProps = {
@@ -119,4 +117,5 @@ Task.defaultProps = {
   status: 'view',
   label: 'Unnamed task',
   timer: 0,
+  isTimerActive: false,
 }

@@ -1,28 +1,20 @@
-import PropTypes from 'prop-types'
-import React from 'react'
+import React, { useContext } from 'react'
 import Task from './Task'
+import TodoContext from '../context/todo-context'
 
-export default function TaskList({ todos, handleTimerActiveChange, onDeleted, onEdited, toggleStatus, timerHandler }) {
-  const elements = todos.map((item) => {
-    return (
-      <Task
-        {...item}
-        key={item.id}
-        timerHandler={(timer) => timerHandler(item.id, timer)}
-        setTimerActive={(isActive) => handleTimerActiveChange(item.id, isActive)}
-        onEdited={(text) => onEdited(item.id, text)}
-        onDeleted={() => onDeleted(item.id)}
-        toggleStatus={(status) => toggleStatus(item.id, status)}
-      />
-    )
+export default function TaskList() {
+  const { data, filterStatus } = useContext(TodoContext)
+
+  const filteredData = data.filter((item) => {
+    if (filterStatus === 'all') return true
+    if (filterStatus === 'active') return item.status === 'view' || item.status === 'editing'
+    if (filterStatus === 'completed') return item.status === 'completed'
+    return true
+  })
+
+  const elements = filteredData.map((item) => {
+    return <Task {...item} key={item.id} />
   })
 
   return <ul className="todo-list">{elements}</ul>
-}
-
-TaskList.propTypes = {
-  todos: PropTypes.array,
-  onDeleted: PropTypes.func,
-  onEdited: PropTypes.func,
-  toggleStatus: PropTypes.func,
 }

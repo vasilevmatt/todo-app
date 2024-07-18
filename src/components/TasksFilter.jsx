@@ -1,30 +1,25 @@
-import PropTypes from 'prop-types'
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 import FilterButton from './FilterButton'
+import TodoContext from '../context/todo-context'
 
-export default function TasksFilter({ onFiltered }) {
-  const [activeFilter, setActiveFilter] = useState('all')
+export default function TasksFilter() {
+  const { filterStatus, todoFilter } = useContext(TodoContext)
 
   function handleFilterChange(filter) {
-    setActiveFilter(filter)
-    onFiltered(filter)
+    todoFilter(filter)
   }
 
   return (
     <ul className="filters">
-      <FilterButton isActive={activeFilter === 'all'} onFiltered={() => handleFilterChange('all')}>
+      <FilterButton isActive={filterStatus === 'all'} onFiltered={() => handleFilterChange('all')}>
         All
       </FilterButton>
-      <FilterButton isActive={activeFilter === 'active'} onFiltered={() => handleFilterChange('active')}>
+      <FilterButton isActive={filterStatus === 'active'} onFiltered={() => handleFilterChange('active')}>
         Active
       </FilterButton>
-      <FilterButton isActive={activeFilter === 'completed'} onFiltered={() => handleFilterChange('completed')}>
+      <FilterButton isActive={filterStatus === 'completed'} onFiltered={() => handleFilterChange('completed')}>
         Completed
       </FilterButton>
     </ul>
   )
-}
-
-TasksFilter.propTypes = {
-  onFiltered: PropTypes.func,
 }

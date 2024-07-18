@@ -1,7 +1,8 @@
-import PropTypes from 'prop-types'
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import TodoContext from '../context/todo-context'
 
-export default function NewTaskForm({ onCreated }) {
+export default function NewTaskForm() {
+  const { createItem } = useContext(TodoContext)
   const [text, setText] = useState('')
   const [minutes, setMinutes] = useState('')
   const [seconds, setSeconds] = useState('')
@@ -9,9 +10,11 @@ export default function NewTaskForm({ onCreated }) {
   function onLabelChange(e) {
     setText(e.target.value)
   }
+
   function onMinutesChange(e) {
     setMinutes(e.target.value)
   }
+
   function onSecondsChange(e) {
     setSeconds(e.target.value)
   }
@@ -20,7 +23,7 @@ export default function NewTaskForm({ onCreated }) {
     e.preventDefault()
 
     const timer = Number(minutes) * 60 + Number(seconds)
-    onCreated(text, timer)
+    createItem(text, timer ? timer : 60)
     setText('')
     setMinutes('')
     setSeconds('')
@@ -57,8 +60,4 @@ export default function NewTaskForm({ onCreated }) {
       <button type="submit" />
     </form>
   )
-}
-
-NewTaskForm.propTypes = {
-  onCreated: PropTypes.func,
 }
